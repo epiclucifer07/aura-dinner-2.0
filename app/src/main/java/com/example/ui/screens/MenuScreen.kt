@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -45,12 +44,14 @@ import com.example.data.model.DietaryTag
 import com.example.data.model.MenuCategory
 import com.example.data.model.MenuItem
 import com.example.ui.components.DishCard
+import com.example.ui.components.WebsiteFooter
 import com.example.ui.theme.AuraCrimson
 import com.example.ui.theme.AuraCrimsonSoft
 import com.example.ui.theme.AuraSurfaceBorder
 import com.example.ui.theme.AuraTextMuted
 import com.example.ui.theme.AuraTextSecondary
 import com.example.ui.theme.AuraWhite
+import com.example.ui.viewmodel.AppNavDestination
 import com.example.ui.viewmodel.MenuFilterState
 
 @Composable
@@ -63,6 +64,8 @@ fun MenuScreen(
     onSearchQueryChanged: (String) -> Unit,
     onDishClick: (MenuItem) -> Unit,
     onQuickAdd: (MenuItem) -> Unit,
+    onNavigate: (AppNavDestination) -> Unit = {},
+    onOpenLocations: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Dynamic Filter Calculation
@@ -104,7 +107,7 @@ fun MenuScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Seasonal culinary creations with transparent allergen guidance",
+                    text = "Seasonal culinary creations, Royal Indian specialties & transparent allergen guidance",
                     style = MaterialTheme.typography.bodySmall,
                     color = AuraTextSecondary
                 )
@@ -117,7 +120,7 @@ fun MenuScreen(
                 OutlinedTextField(
                     value = filterState.searchQuery,
                     onValueChange = onSearchQueryChanged,
-                    placeholder = { Text("Search dishes, ingredients, or spices...", fontSize = 13.sp) },
+                    placeholder = { Text("Search dishes, spices, or ingredients...", fontSize = 13.sp) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
@@ -153,7 +156,7 @@ fun MenuScreen(
             }
         }
 
-        // Category Pills
+        // Category Pills (Including Royal Indian)
         item {
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -276,7 +279,7 @@ fun MenuScreen(
                 )
 
                 Text(
-                    text = "Tap dish for full allergen list",
+                    text = "Tap dish for ingredients & allergen notes",
                     fontSize = 11.sp,
                     color = AuraCrimson
                 )
@@ -329,6 +332,15 @@ fun MenuScreen(
                     )
                 }
             }
+        }
+
+        // Website Footer
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+            WebsiteFooter(
+                onNavigate = onNavigate,
+                onOpenLocations = onOpenLocations
+            )
         }
     }
 }

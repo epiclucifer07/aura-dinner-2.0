@@ -26,6 +26,8 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.ShoppingBag
@@ -50,17 +52,17 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
+import com.example.data.model.GlobalLocations
 import com.example.data.model.MenuItem
+import com.example.data.model.RestaurantBranch
 import com.example.ui.components.DishCard
 import com.example.ui.theme.AuraCrimson
 import com.example.ui.theme.AuraCrimsonDark
 import com.example.ui.theme.AuraCrimsonSoft
 import com.example.ui.theme.AuraSurfaceBorder
-import com.example.ui.theme.AuraSurfaceElevated
 import com.example.ui.theme.AuraTextMuted
 import com.example.ui.theme.AuraTextSecondary
 import com.example.ui.theme.AuraWhite
@@ -69,6 +71,8 @@ import com.example.ui.viewmodel.AppNavDestination
 @Composable
 fun HomeScreen(
     featuredDishes: List<MenuItem>,
+    branch: RestaurantBranch = GlobalLocations.flagshipBranches[0],
+    onSwitchBranch: () -> Unit = {},
     onNavigate: (AppNavDestination) -> Unit,
     onDishClick: (MenuItem) -> Unit,
     onQuickAdd: (MenuItem) -> Unit,
@@ -118,19 +122,28 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.Bottom,
                     horizontalAlignment = Alignment.Start
                 ) {
-                    Box(
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
                             .background(AuraWhite.copy(alpha = 0.18f))
                             .border(0.5.dp, AuraWhite.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
+                            .clickable(onClick = onSwitchBranch)
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = null,
+                            tint = AuraWhite,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "MICHELIN SELECTION 2026",
+                            text = "${branch.cityName.uppercase()} • ${branch.country.uppercase()} (SWITCH)",
                             color = AuraWhite,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.2.sp
+                            letterSpacing = 1.sp
                         )
                     }
 
@@ -148,7 +161,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(6.dp))
 
                     Text(
-                        text = "An exquisite synthesis of contemporary French-Japanese culinary craft, tableside theatrics, and warm hospitality.",
+                        text = "An exquisite synthesis of Royal Indian gastronomy, French-Japanese culinary craft, and warm hospitality.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = AuraWhite.copy(alpha = 0.9f),
                         lineHeight = 20.sp
@@ -226,19 +239,19 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 FeatureHighlight(
-                    icon = Icons.Default.Star,
-                    title = "Artisan Searing",
-                    subtitle = "Binchotan Charcoal"
+                    icon = Icons.Default.RestaurantMenu,
+                    title = "Royal Indian",
+                    subtitle = "Dum Biryani & Tandoor"
                 )
                 FeatureHighlight(
                     icon = Icons.Default.Shield,
                     title = "Allergy Certified",
-                    subtitle = "Sterile Prep Line"
+                    subtitle = "Transparent Kitchen"
                 )
                 FeatureHighlight(
-                    icon = Icons.Default.ShoppingBag,
-                    title = "Express Order",
-                    subtitle = "Dine-In & Pickup"
+                    icon = Icons.Default.Public,
+                    title = "Global Metros",
+                    subtitle = "NYC, Mumbai, London"
                 )
             }
         }
@@ -265,7 +278,7 @@ fun HomeScreen(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Culinary highlights crafted for this evening",
+                            text = "Royal Indian & Continental tasting highlights",
                             style = MaterialTheme.typography.bodySmall,
                             color = AuraTextSecondary
                         )
@@ -285,7 +298,7 @@ fun HomeScreen(
         }
 
         // Dish Cards
-        items(featuredDishes.take(3)) { dish ->
+        items(featuredDishes.take(4)) { dish ->
             Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                 DishCard(
                     item = dish,
@@ -295,7 +308,7 @@ fun HomeScreen(
             }
         }
 
-        // Dining Experience & Hours Card
+        // Dining Experience & Hours Card (Live based on selected global branch)
         item {
             Spacer(modifier = Modifier.height(16.dp))
             Card(
@@ -311,19 +324,47 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .padding(20.dp)
                 ) {
-                    Text(
-                        text = "The Aura Experience",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontFamily = FontFamily.Serif,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = AuraCrimson
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = branch.branchName,
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontFamily = FontFamily.Serif,
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = AuraCrimson
+                            )
+                            Text(
+                                text = "${branch.cityName}, ${branch.stateOrRegion}, ${branch.country}",
+                                fontSize = 12.sp,
+                                color = AuraTextSecondary
+                            )
+                        }
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(AuraCrimsonSoft)
+                                .clickable(onClick = onSwitchBranch)
+                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                text = "Switch City",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = AuraCrimsonDark
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Every course at Aura is designed as an intimate sensory narrative. Our sommelier curates rare biodynamic vintages, and our chefs respect every guest's dietary sensitivities with dedicated allergy-safe culinary stations.",
+                        text = "Every course at Aura is designed as an intimate sensory narrative. Enjoy authentic Awadhi dum cooking, tandoori clay-fired delicacies, and rare cellar vintages.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = AuraTextSecondary,
                         lineHeight = 20.sp
@@ -341,7 +382,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "Dinner Service: Tue – Sun • 5:30 PM – 11:00 PM",
+                            text = branch.hours,
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurface
@@ -359,7 +400,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "450 Lexington Avenue, Manhattan, New York",
+                            text = branch.address,
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurface
@@ -377,7 +418,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "+1 (212) 555-0188 • Valet Parking Onsite",
+                            text = "${branch.phone} • Concierge & Valet Available",
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurface
@@ -385,6 +426,15 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+
+        // Restaurant Website Footer
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+            com.example.ui.components.WebsiteFooter(
+                onNavigate = onNavigate,
+                onOpenLocations = onSwitchBranch
+            )
         }
     }
 }

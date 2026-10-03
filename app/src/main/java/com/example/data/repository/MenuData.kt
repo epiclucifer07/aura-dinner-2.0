@@ -8,6 +8,144 @@ import com.example.data.model.MenuItem
 
 object MenuData {
     val sampleDishes: List<MenuItem> = listOf(
+        // ROYAL INDIAN SPECIALTIES
+        MenuItem(
+            id = "indian_1",
+            name = "Royal Awadhi Lamb Dum Biryani",
+            subtitle = "Sealed Clay Handi & Saffron Parda",
+            description = "Aged Himalayan basmati rice slow-cooked on dum with milk-fed spring lamb shanks, caramelized brown onions, royal saffron, kewra water, and garden mint, sealed beneath a flaky pastry crust.",
+            price = 42.00,
+            category = MenuCategory.INDIAN,
+            allergens = listOf(Allergen.DAIRY),
+            dietaryTags = listOf(DietaryTag.GLUTEN_FREE, DietaryTag.HALAL),
+            imageRes = R.drawable.img_dish_wagyu,
+            calories = 680,
+            ingredients = listOf("Milk-Fed Lamb Shanks", "Aged Basmati Rice", "Kashmiri Saffron", "Cultured Ghee", "Caramelized Onions", "Kewra & Rose Water", "Wild Mint"),
+            isChefSpecial = true,
+            customizationOptions = listOf("Mild Spice", "Authentic Royal Spice", "Extra Mirchi Ka Salan", "Burani Garlic Raita")
+        ),
+        MenuItem(
+            id = "indian_2",
+            name = "Old Delhi Murgh Makhani",
+            subtitle = "Tandoori Chicken in Smoked Velvet Gravy",
+            description = "Charcoal-roasted corn-fed organic chicken simmered in a silky reduction of ripe San Marzano plum tomatoes, churned white butter, soaked cashew cream, and roasted kasoori methi.",
+            price = 36.00,
+            category = MenuCategory.INDIAN,
+            allergens = listOf(Allergen.DAIRY, Allergen.TREE_NUTS),
+            dietaryTags = listOf(DietaryTag.GLUTEN_FREE, DietaryTag.HALAL),
+            imageRes = R.drawable.img_dish_burrata,
+            calories = 590,
+            ingredients = listOf("Corn-Fed Chicken", "San Marzano Tomatoes", "White Churned Butter", "Organic Cashew Paste", "Fenugreek Leaves", "Green Cardamom"),
+            isChefSpecial = true,
+            customizationOptions = listOf("Standard Rich Gravy", "Dairy-Light Preparation", "Extra Butter Swirl", "Nut-Free Cream Base")
+        ),
+        MenuItem(
+            id = "indian_3",
+            name = "Dal Bukhara 24-Hr Slow Simmer",
+            subtitle = "Whole Black Urad Lentils & Churned Butter",
+            description = "Signature black lentils and kidney beans simmered continuously for 24 hours over glowing charcoal embers with slow-roasted vine tomatoes, fresh garlic, and churned butter.",
+            price = 28.00,
+            category = MenuCategory.INDIAN,
+            allergens = listOf(Allergen.DAIRY),
+            dietaryTags = listOf(DietaryTag.GLUTEN_FREE, DietaryTag.VEGETARIAN, DietaryTag.HALAL),
+            imageRes = R.drawable.img_hero_restaurant,
+            calories = 430,
+            ingredients = listOf("Organic Black Urad Lentils", "Kashmiri Tomato Reduction", "Cultured Butter", "Ginger Juliennes", "Slow Charcoal Embers"),
+            isChefSpecial = true,
+            customizationOptions = listOf("Classic Creamy", "Extra Smoky", "Vegan Coconut Butter Variant")
+        ),
+        MenuItem(
+            id = "indian_4",
+            name = "Saffron Paneer Malai Tikka",
+            subtitle = "Artisanal Cottage Cheese & Pistachio Dust",
+            description = "Freshly pressed cow's milk paneer marinated in Kashmiri saffron strands, green cardamom, hung Greek yogurt, and mace, gently charred in a 700-degree clay tandoor.",
+            price = 26.00,
+            category = MenuCategory.INDIAN,
+            allergens = listOf(Allergen.DAIRY, Allergen.TREE_NUTS),
+            dietaryTags = listOf(DietaryTag.GLUTEN_FREE, DietaryTag.VEGETARIAN, DietaryTag.HALAL),
+            imageRes = R.drawable.img_dish_scallops,
+            calories = 460,
+            ingredients = listOf("Handmade Cottage Cheese", "Kashmiri Saffron", "Hung Yogurt", "Green Cardamom", "Pistachio Dust", "Mint Chutney"),
+            isChefSpecial = false,
+            customizationOptions = listOf("Standard", "Nut-Free", "Charred Crisp Edges", "Extra Mint Chutney")
+        ),
+        MenuItem(
+            id = "indian_5",
+            name = "Royal Kashmiri Lamb Rogan Josh",
+            subtitle = "Kashmiri Chillies & Ratan Jot Essence",
+            description = "Tender boneless lamb shoulder braised patiently with Kashmiri mild sun-dried chillies, infused with the natural bark extract of ratan jot, dry ginger (saunth), and toasted fennel.",
+            price = 44.00,
+            category = MenuCategory.INDIAN,
+            allergens = listOf(Allergen.DAIRY),
+            dietaryTags = listOf(DietaryTag.GLUTEN_FREE, DietaryTag.HALAL, DietaryTag.NUT_FREE),
+            imageRes = R.drawable.img_dish_wagyu,
+            calories = 620,
+            ingredients = listOf("Boneless Lamb Shoulder", "Kashmiri Chillies", "Toasted Fennel Powder", "Dry Ginger", "Cultured Ghee", "Whole Cardamom"),
+            isChefSpecial = false,
+            customizationOptions = listOf("Medium Heat", "Traditional Kashmiri Heat", "Boneless Cubes Only")
+        ),
+        MenuItem(
+            id = "indian_6",
+            name = "Smoked Tandoori Tiger Prawns",
+            subtitle = "Carom Seeds, Yellow Mustard & Smoked Ghee",
+            description = "Colossal wild tiger prawns infused with carom seed (ajwain), crushed black peppercorns, roasted chickpea flour, and mustard oil, charred to succulent perfection.",
+            price = 48.00,
+            category = MenuCategory.INDIAN,
+            allergens = listOf(Allergen.SHELLFISH, Allergen.DAIRY),
+            dietaryTags = listOf(DietaryTag.GLUTEN_FREE, DietaryTag.HALAL),
+            imageRes = R.drawable.img_dish_scallops,
+            calories = 380,
+            ingredients = listOf("Wild Tiger Prawns", "Ajwain Carom Seeds", "Cold-Pressed Mustard Oil", "Gram Flour", "Smoked Ghee", "Pickled Shallots"),
+            isChefSpecial = true,
+            customizationOptions = listOf("Medium Spicy", "Mild Lemon Herb", "Dairy-Free Ghee Prep")
+        ),
+        MenuItem(
+            id = "indian_7",
+            name = "Black Truffle Garlic Naan Basket",
+            subtitle = "Artisanal Clay-Baked Breads Trio",
+            description = "A warm basket featuring Italian black truffle shavings on roasted garlic naan, multi-layered crispy laccha paratha, and traditional whole wheat missi roti.",
+            price = 16.00,
+            category = MenuCategory.INDIAN,
+            allergens = listOf(Allergen.GLUTEN, Allergen.DAIRY),
+            dietaryTags = listOf(DietaryTag.VEGETARIAN),
+            imageRes = R.drawable.img_hero_restaurant,
+            calories = 380,
+            ingredients = listOf("Organic Wheat Flour", "European Butter", "Italian Black Truffles", "Roasted Garlic", "Nigella Seeds", "Fresh Cilantro"),
+            isChefSpecial = false,
+            customizationOptions = listOf("All Garlic Naan", "Truffle Naan Only", "Dairy-Free Olive Oil Brush")
+        ),
+        MenuItem(
+            id = "indian_8",
+            name = "Shahi Tukda & Kesar Phirni",
+            subtitle = "Ghee-Crisped Brioche & Saffron Rice Cream",
+            description = "Cardamom and saffron infused broken rice cream accompanied by gold-leaf adorned clarified butter toasted brioche, reduced rabri cream, and slivered Iranian pistachios.",
+            price = 22.00,
+            category = MenuCategory.INDIAN,
+            allergens = listOf(Allergen.DAIRY, Allergen.GLUTEN, Allergen.TREE_NUTS),
+            dietaryTags = listOf(DietaryTag.VEGETARIAN),
+            imageRes = R.drawable.img_dish_burrata,
+            calories = 490,
+            ingredients = listOf("Brioche Bread", "Organic Cow Milk Rabri", "Kashmiri Saffron", "Iranian Pistachios", "Silver Leaf", "Cardamom"),
+            isChefSpecial = true,
+            customizationOptions = listOf("Standard", "Nut-Free", "Warm Rabri on the Side")
+        ),
+        MenuItem(
+            id = "indian_9",
+            name = "Alphonso Mango & Cardamom Lassi",
+            subtitle = "Ratnagiri Alphonso Mango & Hung Curd",
+            description = "Sun-kissed GI-tagged Ratnagiri Alphonso mango pulp churned with velvety hung yogurt, aromatic green cardamom, and a pinch of rock salt, served in a chilled ceramic cup.",
+            price = 14.00,
+            category = MenuCategory.INDIAN,
+            allergens = listOf(Allergen.DAIRY),
+            dietaryTags = listOf(DietaryTag.GLUTEN_FREE, DietaryTag.VEGETARIAN, DietaryTag.HALAL),
+            imageRes = R.drawable.img_dish_scallops,
+            calories = 220,
+            ingredients = listOf("Ratnagiri Alphonso Mango", "Hung Cultured Curd", "Green Cardamom", "Pistachio Slivers", "Wild Honey"),
+            isChefSpecial = false,
+            customizationOptions = listOf("Standard Sweetness", "Less Sweet", "No Pistachio Garnish", "Vegan Oat Milk Base")
+        ),
+
+        // CONTINENTAL & CHEF'S SIGNATURE CLASSICS
         MenuItem(
             id = "starter_1",
             name = "Pugliese Burrata & Heirloom",
@@ -20,7 +158,7 @@ object MenuData {
             imageRes = R.drawable.img_dish_burrata,
             calories = 420,
             ingredients = listOf("Pugliese Burrata", "Organic Heirloom Tomatoes", "Aged Modena Balsamic", "Cold-Pressed Basil Oil", "Focaccia Crisp", "Maldon Sea Salt"),
-            isChefSpecial = true,
+            isChefSpecial = false,
             customizationOptions = listOf("Standard", "Gluten-Free Cracker", "Extra Basil Emulsion", "Nut-Free Kitchen Prep")
         ),
         MenuItem(
@@ -37,21 +175,6 @@ object MenuData {
             ingredients = listOf("Wild Hokkaido Scallops", "Spanish Saffron", "Sweet Butter Emulsion", "Ossetra Caviar", "Chive Oil", "Micro Marigold"),
             isChefSpecial = true,
             customizationOptions = listOf("Standard", "Dairy-Free Olive Oil Emulsion", "Extra Caviar (+ $12)", "No Chives")
-        ),
-        MenuItem(
-            id = "starter_3",
-            name = "Wild Truffle Arancini",
-            subtitle = "Crisp Risotto & Parmigiano Fonduta",
-            description = "Crisp golden saffron carnaroli risotto spheres stuffed with wild winter truffles and smoked scamorza, perched on a 24-month Parmigiano-Reggiano fondue.",
-            price = 22.00,
-            category = MenuCategory.STARTERS,
-            allergens = listOf(Allergen.GLUTEN, Allergen.DAIRY, Allergen.EGGS),
-            dietaryTags = listOf(DietaryTag.VEGETARIAN),
-            imageRes = R.drawable.img_hero_restaurant,
-            calories = 480,
-            ingredients = listOf("Carnaroli Rice", "Black Winter Truffle", "Smoked Scamorza", "Parmigiano-Reggiano", "Herb Panko", "Organic Eggs"),
-            isChefSpecial = false,
-            customizationOptions = listOf("Standard", "Extra Truffle Fonduta", "Light Salt")
         ),
         MenuItem(
             id = "main_1",
@@ -99,21 +222,6 @@ object MenuData {
             customizationOptions = listOf("Standard", "Dairy-Free Vegan Preparation", "Extra Shaved Truffle (+ $14)")
         ),
         MenuItem(
-            id = "main_4",
-            name = "Dry-Aged Tomahawk Ribeye",
-            subtitle = "45-Day Dry Aged prime cut (For Two)",
-            description = "Smoked over oak and finished on high fire, served with roasted bone marrow butter, chimichurri sauce, and hand-cut truffle frites.",
-            price = 145.00,
-            category = MenuCategory.GRILL,
-            allergens = listOf(Allergen.DAIRY),
-            dietaryTags = listOf(DietaryTag.GLUTEN_FREE, DietaryTag.NUT_FREE),
-            imageRes = R.drawable.img_dish_wagyu,
-            calories = 1180,
-            ingredients = listOf("Prime Beef Tomahawk", "Roasted Bone Marrow", "Garlic Butter", "Herb Chimichurri", "Sea Salt"),
-            isChefSpecial = false,
-            customizationOptions = listOf("Medium Rare", "Medium", "Charred Crust", "Sauces on the Side")
-        ),
-        MenuItem(
             id = "dessert_1",
             name = "Valrhona Noir Truffle Dome",
             subtitle = "70% Guanaja & Salted Caramel",
@@ -125,7 +233,7 @@ object MenuData {
             imageRes = R.drawable.img_hero_restaurant,
             calories = 490,
             ingredients = listOf("Valrhona 70% Guanaja Chocolate", "Guérande Sea Salt Caramel", "Piedmont Hazelnut Praline", "Feuilletine", "24k Gold Leaf"),
-            isChefSpecial = true,
+            isChefSpecial = false,
             customizationOptions = listOf("Standard", "Nut-Free Variant", "Extra Caramel Sauce")
         ),
         MenuItem(
@@ -157,21 +265,6 @@ object MenuData {
             ingredients = listOf("Small Batch Bourbon", "Angostura Bitters", "Blood Orange Peel", "Demerara Syrup", "Cherrywood Smoke"),
             isChefSpecial = true,
             customizationOptions = listOf("Smoked", "Unsmoked", "Light Bitters")
-        ),
-        MenuItem(
-            id = "cocktail_2",
-            name = "Sparkling Rosemary Pear (Zero-Proof)",
-            subtitle = "Charred Rosemary & Mountain Tonic",
-            description = "Hand-pressed Bartlett pear nectar, artisanal elderflower tonic, charred rosemary sprig, and wildflower honey syrup. Exquisite non-alcoholic refreshment.",
-            price = 15.00,
-            category = MenuCategory.COCKTAILS,
-            allergens = emptyList(),
-            dietaryTags = listOf(DietaryTag.VEGAN, DietaryTag.GLUTEN_FREE, DietaryTag.NUT_FREE, DietaryTag.HALAL),
-            imageRes = R.drawable.img_dish_scallops,
-            calories = 120,
-            ingredients = listOf("Bartlett Pear Nectar", "Fever-Tree Tonic", "Charred Rosemary", "Wildflower Honey", "Meyer Lemon Spritz"),
-            isChefSpecial = false,
-            customizationOptions = listOf("Standard", "Less Sweet", "Extra Soda")
         )
     )
 }

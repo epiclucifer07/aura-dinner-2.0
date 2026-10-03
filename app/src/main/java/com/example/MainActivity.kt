@@ -16,15 +16,18 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.data.model.MenuItem
 import com.example.ui.components.AuraBottomNavigation
-import com.example.ui.components.AuraTopBar
 import com.example.ui.components.DishDetailSheet
+import com.example.ui.components.GlobalLocationSheet
+import com.example.ui.components.WebsiteHeader
 import com.example.ui.screens.HomeScreen
 import com.example.ui.screens.MenuScreen
 import com.example.ui.screens.OrderingScreen
@@ -52,6 +55,7 @@ fun AuraDiningApp(
     viewModel: RestaurantViewModel = viewModel()
 ) {
     val currentDestination by viewModel.currentDestination.collectAsStateWithLifecycle()
+    val selectedBranch by viewModel.selectedBranch.collectAsStateWithLifecycle()
     val filterState by viewModel.filterState.collectAsStateWithLifecycle()
     val selectedDish by viewModel.selectedDishForDetail.collectAsStateWithLifecycle()
     val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
@@ -65,9 +69,12 @@ fun AuraDiningApp(
     val reservationsList by viewModel.reservationsList.collectAsStateWithLifecycle()
     val ordersList by viewModel.ordersList.collectAsStateWithLifecycle()
 
+    var showLocationSheet by remember { mutableStateOf(false) }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val locationSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val totalCartCount = cartItems.sumOf { it.quantity }
 
@@ -80,7 +87,11 @@ fun AuraDiningApp(
         modifier = Modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
-            AuraTopBar(
+            WebsiteHeader(
+                currentDestination = currentDestination,
+                onNavigate = { dest -> viewModel.navigateTo(dest) },
+                currentCity = selectedBranch.cityName,
+                onLocationClick = { showLocationSheet = true },
                 cartCount = totalCartCount,
                 onCartClick = { viewModel.navigateTo(AppNavDestination.ORDER) }
             )
@@ -103,6 +114,8 @@ fun AuraDiningApp(
                 AppNavDestination.HOME -> {
                     HomeScreen(
                         featuredDishes = viewModel.allDishes,
+                        branch = selectedBranch,
+                        onSwitchBranch = { showLocationSheet = true },
                         onNavigate = { dest -> viewModel.navigateTo(dest) },
                         onDishClick = { dish -> viewModel.openDishDetail(dish) },
                         onQuickAdd = { dish ->
@@ -128,13 +141,16 @@ fun AuraDiningApp(
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar("Added ${dish.name} to order")
                             }
-                        }
+                        },
+                        onNavigate = { dest -> viewModel.navigateTo(dest) },
+                        onOpenLocations = { showLocationSheet = true }
                     )
                 }
 
                 AppNavDestination.ORDER -> {
                     OrderingScreen(
                         cartItems = cartItems,
+                        currentBranch = selectedBranch,
                         orderType = orderType,
                         onOrderTypeChanged = { type -> viewModel.setOrderType(type) },
                         tipPercentage = tipPercentage,
@@ -157,6 +173,8 @@ fun AuraDiningApp(
 
                 AppNavDestination.RESERVATIONS -> {
                     ReservationScreen(
+                        currentBranch = selectedBranch,
+                        onSelectBranch = { branch -> viewModel.selectBranch(branch) },
                         onMakeReservation = { name, phone, email, size, date, time, area, notes ->
                             viewModel.makeReservation(name, phone, email, size, date, time, area, notes)
                         },
@@ -166,6 +184,16 @@ fun AuraDiningApp(
                         onCancelReservation = { id -> viewModel.cancelReservation(id) }
                     )
                 }
+            }
+
+            // Global Location / City Selector Sheet
+            if (showLocationSheet) {
+                GlobalLocationSheet(
+                    sheetState = locationSheetState,
+                    selectedBranch = selectedBranch,
+                    onSelectBranch = { branch -> viewModel.selectBranch(branch) },
+                    onDismiss = { showLocationSheet = false }
+                )
             }
 
             // Dish Detail Sheet (Allergen info, ingredients, customization & Add to Order)

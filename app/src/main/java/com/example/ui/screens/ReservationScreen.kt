@@ -18,21 +18,25 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EventSeat
+import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -52,26 +56,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.local.ReservationEntity
+import com.example.data.model.GlobalLocations
+import com.example.data.model.RestaurantBranch
 import com.example.ui.theme.AllergenWarning
 import com.example.ui.theme.AuraCrimson
 import com.example.ui.theme.AuraCrimsonDark
 import com.example.ui.theme.AuraCrimsonSoft
 import com.example.ui.theme.AuraSurfaceBorder
-import com.example.ui.theme.AuraSurfaceElevated
 import com.example.ui.theme.AuraTextMuted
 import com.example.ui.theme.AuraTextSecondary
 import com.example.ui.theme.AuraWhite
 import com.example.ui.theme.DietaryGreen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReservationScreen(
+    currentBranch: RestaurantBranch = GlobalLocations.flagshipBranches[0],
+    onSelectBranch: (RestaurantBranch) -> Unit = {},
     onMakeReservation: (
         name: String,
         phone: String,
@@ -98,7 +105,12 @@ fun ReservationScreen(
     var guestName by remember { mutableStateOf("") }
     var guestPhone by remember { mutableStateOf("") }
     var guestEmail by remember { mutableStateOf("") }
+    var guestCountry by remember { mutableStateOf(currentBranch.country) }
+    var guestState by remember { mutableStateOf(currentBranch.stateOrRegion) }
     var specialRequests by remember { mutableStateOf("") }
+
+    var countryDropdownExpanded by remember { mutableStateOf(false) }
+    var stateDropdownExpanded by remember { mutableStateOf(false) }
 
     val dateOptions = listOf(
         "Tonight, Oct 3",
@@ -181,10 +193,62 @@ fun ReservationScreen(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "Reserve an intimate table or private salon for lunch or dinner",
+                        text = "Select your global branch city, dining space, and time",
                         style = MaterialTheme.typography.bodySmall,
                         color = AuraTextSecondary
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                // 0. Global Branch & City Selector
+                item {
+                    SectionHeader(icon = Icons.Default.LocationCity, title = "Aura Global City & Branch")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(vertical = 2.dp)
+                    ) {
+                        items(GlobalLocations.flagshipBranches) { branch ->
+                            val isSelected = branch.id == currentBranch.id
+                            Box(
+                                modifier = Modifier
+                                    .testTag("res_branch_${branch.id}")
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(if (isSelected) AuraCrimson else MaterialTheme.colorScheme.surface)
+                                    .border(
+                                        1.dp,
+                                        if (isSelected) AuraCrimson else AuraSurfaceBorder,
+                                        RoundedCornerShape(10.dp)
+                                    )
+                                    .clickable { onSelectBranch(branch) }
+                                    .padding(horizontal = 14.dp, vertical = 8.dp)
+                            ) {
+                                Column {
+                                    Text(
+                                        text = branch.cityName,
+                                        fontSize = 13.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                        color = if (isSelected) AuraWhite else MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = branch.country,
+                                        fontSize = 10.sp,
+                                        color = if (isSelected) AuraWhite.copy(alpha = 0.85f) else AuraTextMuted
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Text(
+                        text = "Selected: ${currentBranch.branchName} (${currentBranch.address})",
+                        fontSize = 11.sp,
+                        color = AuraCrimson,
+                        fontWeight = FontWeight.Medium
+                    )
+
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
@@ -373,7 +437,7 @@ fun ReservationScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                // 5. Contact Details & Special Requests
+                // 5. Contact Details, Country & State selection, Special Requests
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -383,7 +447,7 @@ fun ReservationScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                text = "Guest & Occasion Information",
+                                text = "Guest Profile & Global Origin",
                                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -407,7 +471,7 @@ fun ReservationScreen(
                                 value = guestPhone,
                                 onValueChange = { guestPhone = it },
                                 label = { Text("Contact Phone *") },
-                                placeholder = { Text("+1 (212) 555-0144") },
+                                placeholder = { Text("+1 (212) 555-0144 / +91 98765 43210") },
                                 singleLine = true,
                                 modifier = Modifier
                                     .testTag("res_guest_phone_input")
@@ -431,11 +495,81 @@ fun ReservationScreen(
 
                             Spacer(modifier = Modifier.height(8.dp))
 
+                            // Country Dropdown
+                            ExposedDropdownMenuBox(
+                                expanded = countryDropdownExpanded,
+                                onExpandedChange = { countryDropdownExpanded = !countryDropdownExpanded }
+                            ) {
+                                OutlinedTextField(
+                                    value = guestCountry,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Country of Residence") },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = countryDropdownExpanded) },
+                                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson),
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = countryDropdownExpanded,
+                                    onDismissRequest = { countryDropdownExpanded = false }
+                                ) {
+                                    GlobalLocations.allCountries.forEach { country ->
+                                        DropdownMenuItem(
+                                            text = { Text(country) },
+                                            onClick = {
+                                                guestCountry = country
+                                                guestState = GlobalLocations.getStatesForCountry(country).firstOrNull() ?: ""
+                                                countryDropdownExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // State / Province Dropdown
+                            val statesList = GlobalLocations.getStatesForCountry(guestCountry)
+                            ExposedDropdownMenuBox(
+                                expanded = stateDropdownExpanded,
+                                onExpandedChange = { stateDropdownExpanded = !stateDropdownExpanded }
+                            ) {
+                                OutlinedTextField(
+                                    value = guestState,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("State / Province / Region") },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = stateDropdownExpanded) },
+                                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson),
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = stateDropdownExpanded,
+                                    onDismissRequest = { stateDropdownExpanded = false }
+                                ) {
+                                    statesList.forEach { state ->
+                                        DropdownMenuItem(
+                                            text = { Text(state) },
+                                            onClick = {
+                                                guestState = state
+                                                stateDropdownExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
                             OutlinedTextField(
                                 value = specialRequests,
                                 onValueChange = { specialRequests = it },
                                 label = { Text("Dietary restrictions, allergies, or special occasion") },
-                                placeholder = { Text("e.g. Birthday anniversary, gluten intolerance, quiet corner table") },
+                                placeholder = { Text("e.g. Jain preparation, severe peanut allergy, birthday table") },
                                 singleLine = false,
                                 maxLines = 3,
                                 modifier = Modifier
@@ -451,6 +585,11 @@ fun ReservationScreen(
                     // Reserve Button
                     Button(
                         onClick = {
+                            val notesWithOrigin = if (specialRequests.isNotBlank()) {
+                                "$specialRequests • Origin: $guestState, $guestCountry"
+                            } else {
+                                "Origin: $guestState, $guestCountry"
+                            }
                             onMakeReservation(
                                 guestName,
                                 guestPhone,
@@ -459,7 +598,7 @@ fun ReservationScreen(
                                 selectedDate,
                                 selectedTimeSlot,
                                 selectedSeatingArea,
-                                specialRequests
+                                notesWithOrigin
                             )
                         },
                         modifier = Modifier
@@ -479,8 +618,8 @@ fun ReservationScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Confirm Reservation ($partySize Guests • $selectedTimeSlot)",
-                            fontSize = 14.sp,
+                            text = "Confirm Reservation (${currentBranch.cityName} • $partySize Guests)",
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -513,7 +652,7 @@ fun ReservationScreen(
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "Your confirmed table bookings will appear here.",
+                        text = "Your confirmed table bookings across global Aura branches will appear here.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = AuraTextSecondary
                     )
@@ -602,7 +741,7 @@ fun ReservationScreen(
                             if (confirmationDialog.specialRequests.isNotBlank()) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "📝 Notes: ${confirmationDialog.specialRequests}",
+                                    text = "📝 Details: ${confirmationDialog.specialRequests}",
                                     fontSize = 11.sp,
                                     color = AuraCrimsonDark
                                 )

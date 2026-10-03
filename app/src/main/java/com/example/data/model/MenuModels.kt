@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 
 enum class MenuCategory(val displayName: String) {
     ALL("All Dishes"),
+    INDIAN("Royal Indian"),
     STARTERS("Starters"),
     MAINS("Mains"),
     GRILL("From the Grill"),

@@ -8,8 +8,10 @@ import com.example.data.local.OrderEntity
 import com.example.data.local.ReservationEntity
 import com.example.data.model.CartItem
 import com.example.data.model.DietaryTag
+import com.example.data.model.GlobalLocations
 import com.example.data.model.MenuCategory
 import com.example.data.model.MenuItem
+import com.example.data.model.RestaurantBranch
 import com.example.data.repository.RestaurantRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,7 +21,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
-import java.util.UUID
 
 enum class AppNavDestination(val label: String) {
     HOME("Home"),
@@ -44,6 +45,46 @@ class RestaurantViewModel(application: Application) : AndroidViewModel(applicati
 
     fun navigateTo(destination: AppNavDestination) {
         _currentDestination.value = destination
+    }
+
+    // Global Flagship Branch / Location Management
+    val flagshipBranches = GlobalLocations.flagshipBranches
+    val allCountries = GlobalLocations.allCountries
+    val majorGlobalCities = GlobalLocations.majorGlobalCities
+
+    private val _selectedBranch = MutableStateFlow(GlobalLocations.flagshipBranches[0])
+    val selectedBranch: StateFlow<RestaurantBranch> = _selectedBranch.asStateFlow()
+
+    fun selectBranch(branch: RestaurantBranch) {
+        _selectedBranch.value = branch
+    }
+
+    fun getStatesForCountry(country: String): List<String> {
+        return GlobalLocations.getStatesForCountry(country)
+    }
+
+    // Global Delivery Address Selection
+    private val _deliveryCountry = MutableStateFlow("United States")
+    val deliveryCountry: StateFlow<String> = _deliveryCountry.asStateFlow()
+
+    private val _deliveryState = MutableStateFlow("New York")
+    val deliveryState: StateFlow<String> = _deliveryState.asStateFlow()
+
+    private val _deliveryCity = MutableStateFlow("New York")
+    val deliveryCity: StateFlow<String> = _deliveryCity.asStateFlow()
+
+    fun setDeliveryCountry(country: String) {
+        _deliveryCountry.value = country
+        val availableStates = getStatesForCountry(country)
+        _deliveryState.value = availableStates.firstOrNull() ?: ""
+    }
+
+    fun setDeliveryState(state: String) {
+        _deliveryState.value = state
+    }
+
+    fun setDeliveryCity(city: String) {
+        _deliveryCity.value = city
     }
 
     // Full Menu
@@ -204,9 +245,12 @@ class RestaurantViewModel(application: Application) : AndroidViewModel(applicati
             tip = tip,
             tax = tax,
             total = finalTotal,
-            customerName = customerName.ifBlank { "Guest" },
+            customerName = customerName.ifBlank { "Aura Patron" },
             customerPhone = customerPhone.ifBlank { "+1 (555) 019-2834" },
-            tableOrAddress = tableOrAddress.ifBlank { if (_orderType.value == "Dine-In") "Table 7" else "Pick-Up Counter" },
+            tableOrAddress = tableOrAddress.ifBlank {
+                if (_orderType.value == "Dine-In") "Table 7 • ${_selectedBranch.value.branchName}"
+                else "${_deliveryCity.value}, ${_deliveryState.value}, ${_deliveryCountry.value}"
+            },
             specialNotes = notes,
             status = "Confirmed"
         )
@@ -238,6 +282,8 @@ class RestaurantViewModel(application: Application) : AndroidViewModel(applicati
     ) {
         val randomSuffix = (100..999).random()
         val code = "RES-$randomSuffix"
+        val fullSeatingArea = "${_selectedBranch.value.cityName} • $seatingArea"
+
         val reservation = ReservationEntity(
             confirmationCode = code,
             guestName = name.ifBlank { "Aura Guest" },
@@ -246,7 +292,7 @@ class RestaurantViewModel(application: Application) : AndroidViewModel(applicati
             partySize = partySize,
             dateText = dateText,
             timeSlot = timeSlot,
-            seatingArea = seatingArea,
+            seatingArea = fullSeatingArea,
             specialRequests = specialRequests,
             status = "CONFIRMED"
         )

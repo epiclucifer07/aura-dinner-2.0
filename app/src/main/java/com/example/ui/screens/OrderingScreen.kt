@@ -24,17 +24,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.LocalMall
-import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,7 +57,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -67,22 +67,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.local.OrderEntity
 import com.example.data.model.CartItem
+import com.example.data.model.GlobalLocations
+import com.example.data.model.RestaurantBranch
 import com.example.ui.theme.AuraCrimson
 import com.example.ui.theme.AuraCrimsonDark
 import com.example.ui.theme.AuraCrimsonSoft
 import com.example.ui.theme.AuraSurfaceBorder
-import com.example.ui.theme.AuraSurfaceElevated
 import com.example.ui.theme.AuraTextMuted
 import com.example.ui.theme.AuraTextSecondary
 import com.example.ui.theme.AuraWhite
 import com.example.ui.theme.DietaryGreen
-import com.example.ui.theme.DietaryGreenBg
-import com.example.ui.viewmodel.AppNavDestination
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderingScreen(
     cartItems: List<CartItem>,
+    currentBranch: RestaurantBranch = GlobalLocations.flagshipBranches[0],
     orderType: String,
     onOrderTypeChanged: (String) -> Unit,
     tipPercentage: Int,
@@ -106,9 +107,17 @@ fun OrderingScreen(
     // Checkout form inputs
     var customerName by remember { mutableStateOf("") }
     var customerPhone by remember { mutableStateOf("") }
-    var tableOrAddress by remember { mutableStateOf("") }
+    var streetAddress by remember { mutableStateOf("") }
+    var selectedCountry by remember { mutableStateOf(currentBranch.country) }
+    var selectedState by remember { mutableStateOf(currentBranch.stateOrRegion) }
+    var selectedCity by remember { mutableStateOf(currentBranch.cityName) }
+    var tableOrPickupTime by remember { mutableStateOf(if (orderType == "Dine-In") "Table 4" else "7:30 PM") }
     var orderNotes by remember { mutableStateOf("") }
     var promoInput by remember { mutableStateOf("") }
+
+    var countryDropdownExpanded by remember { mutableStateOf(false) }
+    var stateDropdownExpanded by remember { mutableStateOf(false) }
+    var cityDropdownExpanded by remember { mutableStateOf(false) }
 
     val rawSubtotal = cartItems.sumOf { it.totalPrice }
     val discount = rawSubtotal * promoDiscount
@@ -196,7 +205,7 @@ fun OrderingScreen(
                     Spacer(modifier = Modifier.height(6.dp))
 
                     Text(
-                        text = "Explore our tasting menu or artisanal dishes to begin your online dining order.",
+                        text = "Explore our Royal Indian specialties, continental mains, or fine wines to begin your order.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = AuraTextSecondary,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -225,6 +234,42 @@ fun OrderingScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 100.dp)
                 ) {
+                    // Active Global Branch Banner
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .border(1.dp, AuraSurfaceBorder, RoundedCornerShape(10.dp))
+                                .padding(12.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = null,
+                                    tint = AuraCrimson,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Column {
+                                    Text(
+                                        text = "Fulfilling from ${currentBranch.branchName}",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "${currentBranch.cityName}, ${currentBranch.country} • ${currentBranch.address}",
+                                        fontSize = 11.sp,
+                                        color = AuraTextSecondary
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(14.dp))
+                    }
+
                     // Order Type Toggle (Dine-In, Pickup, Delivery)
                     item {
                         Text(
@@ -269,7 +314,7 @@ fun OrderingScreen(
                     // Cart Items List
                     item {
                         Text(
-                            text = "Selected Items",
+                            text = "Selected Creations",
                             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -516,7 +561,7 @@ fun OrderingScreen(
         }
     }
 
-    // Checkout Details Dialog
+    // Checkout Details Dialog with Comprehensive Global Country, State, and City Selectors
     if (showCheckoutDialog) {
         AlertDialog(
             onDismissRequest = { showCheckoutDialog = false },
@@ -531,79 +576,200 @@ fun OrderingScreen(
                 )
             },
             text = {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Enter guest details for kitchen order ticket",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = AuraTextSecondary
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    item {
+                        Text(
+                            text = "Fulfilling branch: ${currentBranch.branchName}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = AuraCrimson,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
 
-                    OutlinedTextField(
-                        value = customerName,
-                        onValueChange = { customerName = it },
-                        label = { Text("Guest Name *") },
-                        placeholder = { Text("e.g. Julian Vance") },
-                        singleLine = true,
-                        modifier = Modifier
-                            .testTag("checkout_guest_name_input")
-                            .fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson)
-                    )
+                        OutlinedTextField(
+                            value = customerName,
+                            onValueChange = { customerName = it },
+                            label = { Text("Guest Name *") },
+                            placeholder = { Text("e.g. Julian Vance") },
+                            singleLine = true,
+                            modifier = Modifier
+                                .testTag("checkout_guest_name_input")
+                                .fillMaxWidth(),
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson)
+                        )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    OutlinedTextField(
-                        value = customerPhone,
-                        onValueChange = { customerPhone = it },
-                        label = { Text("Contact Phone *") },
-                        placeholder = { Text("+1 (212) 555-0199") },
-                        singleLine = true,
-                        modifier = Modifier
-                            .testTag("checkout_guest_phone_input")
-                            .fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson)
-                    )
+                        OutlinedTextField(
+                            value = customerPhone,
+                            onValueChange = { customerPhone = it },
+                            label = { Text("Contact Phone *") },
+                            placeholder = { Text("+1 (212) 555-0199 / +91 98765 43210") },
+                            singleLine = true,
+                            modifier = Modifier
+                                .testTag("checkout_guest_phone_input")
+                                .fillMaxWidth(),
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson)
+                        )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    OutlinedTextField(
-                        value = tableOrAddress,
-                        onValueChange = { tableOrAddress = it },
-                        label = {
-                            Text(
-                                if (orderType == "Dine-In") "Table Number (e.g. Table 4)"
-                                else if (orderType == "Delivery") "Delivery Address"
-                                else "Pick-Up Time (e.g. 7:45 PM)"
+                        if (orderType == "Delivery") {
+                            // Country Selection Dropdown
+                            ExposedDropdownMenuBox(
+                                expanded = countryDropdownExpanded,
+                                onExpandedChange = { countryDropdownExpanded = !countryDropdownExpanded }
+                            ) {
+                                OutlinedTextField(
+                                    value = selectedCountry,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Delivery Country *") },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = countryDropdownExpanded) },
+                                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson),
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = countryDropdownExpanded,
+                                    onDismissRequest = { countryDropdownExpanded = false }
+                                ) {
+                                    GlobalLocations.allCountries.forEach { country ->
+                                        DropdownMenuItem(
+                                            text = { Text(country) },
+                                            onClick = {
+                                                selectedCountry = country
+                                                selectedState = GlobalLocations.getStatesForCountry(country).firstOrNull() ?: ""
+                                                countryDropdownExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // State / Province Selection Dropdown
+                            val statesList = GlobalLocations.getStatesForCountry(selectedCountry)
+                            ExposedDropdownMenuBox(
+                                expanded = stateDropdownExpanded,
+                                onExpandedChange = { stateDropdownExpanded = !stateDropdownExpanded }
+                            ) {
+                                OutlinedTextField(
+                                    value = selectedState,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("State / Province / Region *") },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = stateDropdownExpanded) },
+                                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson),
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = stateDropdownExpanded,
+                                    onDismissRequest = { stateDropdownExpanded = false }
+                                ) {
+                                    statesList.forEach { state ->
+                                        DropdownMenuItem(
+                                            text = { Text(state) },
+                                            onClick = {
+                                                selectedState = state
+                                                stateDropdownExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Global City Selection / Input
+                            ExposedDropdownMenuBox(
+                                expanded = cityDropdownExpanded,
+                                onExpandedChange = { cityDropdownExpanded = !cityDropdownExpanded }
+                            ) {
+                                OutlinedTextField(
+                                    value = selectedCity,
+                                    onValueChange = { selectedCity = it },
+                                    label = { Text("City *") },
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = cityDropdownExpanded) },
+                                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson),
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = cityDropdownExpanded,
+                                    onDismissRequest = { cityDropdownExpanded = false }
+                                ) {
+                                    GlobalLocations.majorGlobalCities.take(25).forEach { city ->
+                                        DropdownMenuItem(
+                                            text = { Text(city) },
+                                            onClick = {
+                                                selectedCity = city
+                                                cityDropdownExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            OutlinedTextField(
+                                value = streetAddress,
+                                onValueChange = { streetAddress = it },
+                                label = { Text("Street Address & Apt/Suite *") },
+                                placeholder = { Text("e.g. 120 Ocean Avenue, Apt 4B") },
+                                singleLine = true,
+                                modifier = Modifier
+                                    .testTag("checkout_street_address_input")
+                                    .fillMaxWidth(),
+                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson)
                             )
-                        },
-                        singleLine = true,
-                        modifier = Modifier
-                            .testTag("checkout_location_input")
-                            .fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson)
-                    )
+                        } else {
+                            OutlinedTextField(
+                                value = tableOrPickupTime,
+                                onValueChange = { tableOrPickupTime = it },
+                                label = {
+                                    Text(if (orderType == "Dine-In") "Table Number (e.g. Table 4)" else "Pick-Up Time (e.g. 7:45 PM)")
+                                },
+                                singleLine = true,
+                                modifier = Modifier
+                                    .testTag("checkout_location_input")
+                                    .fillMaxWidth(),
+                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson)
+                            )
+                        }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    OutlinedTextField(
-                        value = orderNotes,
-                        onValueChange = { orderNotes = it },
-                        label = { Text("Allergy alert or kitchen instructions") },
-                        placeholder = { Text("e.g. Extra napkins, peanut allergy") },
-                        singleLine = false,
-                        maxLines = 2,
-                        modifier = Modifier
-                            .testTag("checkout_order_notes_input")
-                            .fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson)
-                    )
+                        OutlinedTextField(
+                            value = orderNotes,
+                            onValueChange = { orderNotes = it },
+                            label = { Text("Allergy alert or kitchen instructions") },
+                            placeholder = { Text("e.g. Extra napkins, peanut allergy, Jain prep") },
+                            singleLine = false,
+                            maxLines = 2,
+                            modifier = Modifier
+                                .testTag("checkout_order_notes_input")
+                                .fillMaxWidth(),
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = AuraCrimson)
+                        )
+                    }
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        onPlaceOrder(customerName, customerPhone, tableOrAddress, orderNotes)
+                        val formattedDestination = if (orderType == "Delivery") {
+                            "${streetAddress.ifBlank { "Delivery Address" }}, $selectedCity, $selectedState, $selectedCountry"
+                        } else {
+                            "$tableOrPickupTime • ${currentBranch.branchName}"
+                        }
+                        onPlaceOrder(customerName, customerPhone, formattedDestination, orderNotes)
                         showCheckoutDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(
@@ -657,7 +823,7 @@ fun OrderingScreen(
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "Thank you, ${placedOrderDialog.customerName}. Your order is currently being prepared with artisan precision in our kitchen.",
+                        text = "Thank you, ${placedOrderDialog.customerName}. Your order is currently being prepared with royal culinary precision in our kitchen.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = AuraTextSecondary
                     )
@@ -677,7 +843,7 @@ fun OrderingScreen(
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = "Dining Type: ${placedOrderDialog.orderType} • ${placedOrderDialog.tableOrAddress}",
+                                text = "Type: ${placedOrderDialog.orderType} • ${placedOrderDialog.tableOrAddress}",
                                 fontSize = 11.sp,
                                 color = AuraTextSecondary
                             )
