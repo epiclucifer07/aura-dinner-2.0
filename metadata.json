@@ -1,0 +1,6 @@
+{
+  "name": "Aura Dining",
+  "description": "Welcome to Aura Dinners — Premium dining with online ordering, table reservations, and dynamic allergen-aware menu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
